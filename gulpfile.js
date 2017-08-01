@@ -65,7 +65,7 @@ gulp.task('images', function() {
 });
 
 gulp.task('watch', function() {
-  gulp.watch('components/sass/*.scss', ['compass']);
+  gulp.watch('components/sass/**/*', ['compass']);
   gulp.watch('builds/development/*.html', ['html']);
   gulp.watch('builds/development/images/*.*', ['images']);
 });
