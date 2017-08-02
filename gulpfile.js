@@ -6,13 +6,17 @@ var gulp = require('gulp'),
     minhtml = require('gulp-minify-html'),
     mincss = require('gulp-minify-css'),
     minimage = require('gulp-imagemin'),
+    uglify = require('gulp-uglify'),
+    browserify= require('gulp-browserify'),
+    concat= require('gulp-concat'),
     pngcrush = require('imagemin-pngcrush');
 
 var env,
     htmlSource,
+    jsSource,
     sassSource,
-    outputDir,
-    sassStyle;
+    sassStyle,
+    outputDir;
 
 env = process.env.NODE_ENV || 'development';
 
@@ -26,6 +30,7 @@ if (env === 'production') {
 
 htmlSource = [outputDir + '*.html'];
 sassSource = ['components/sass/style.scss'];
+jsSource = ['components/scripts/script.js'];
 
 gulp.task('compass', function() {
   gulp.src(sassSource)
@@ -64,10 +69,20 @@ gulp.task('images', function() {
     .pipe(connect.reload())
 });
 
+gulp.task('js', function() {
+  gulp.src(jsSource)
+    .pipe(concat('script.js'))
+    .pipe(browserify())
+    .pipe(gulpif(env === 'production', uglify()))
+    .pipe(gulp.dest(outputDir + 'js'))
+    .pipe(connect.reload())
+});
+
 gulp.task('watch', function() {
   gulp.watch('components/sass/**/*', ['compass']);
   gulp.watch('builds/development/*.html', ['html']);
   gulp.watch('builds/development/images/*.*', ['images']);
+  gulp.watch(jsSource, ['js']);
 });
 
-gulp.task('default', ['compass', 'connect', 'html', 'images', 'watch']);
+gulp.task('default', ['compass', 'connect', 'html', 'images', 'js', 'watch']);
